@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SSE Client Example</title>
+</head>
+<body style="background-color: blueviolet;color: white;font-size: 18px;">
+    <h1>SSE Messages</h1>
+    <div id="messages" style="font-family: monospace; white-space: pre-line;"></div>
+
+    <script>
+        const messagesDiv = document.getElementById('messages');
+        const evtSource = new EventSource('http://127.0.0.1:8080/events');
+        count = 0
+
+        evtSource.onmessage = function(event) {
+            const msg = document.createElement('div');
+            msg.textContent = event.data;
+            messagesDiv.appendChild(msg);
+            count++
+            if (count >= 20) { // it's 5k messages in total
+                evtSource.close()
+            }
+        };
+
+        evtSource.onerror = function(err) {
+            const msg = document.createElement('div');
+            msg.textContent = "Connection error or closed.";
+            msg.style.color = "red";
+            messagesDiv.appendChild(msg);
+            evtSource.close();
+        };
+    </script>
+</body>
+</html>
