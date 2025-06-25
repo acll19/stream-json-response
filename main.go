@@ -85,7 +85,7 @@ func sseHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func streamToFile(ctx context.Context) {
-	resp, now, err := fetchAlbums(ctx)
+	resp, elapsed, err := fetchAlbums(ctx)
 
 	if resp.StatusCode != http.StatusOK {
 		fmt.Println("Error response " + err.Error())
@@ -105,7 +105,6 @@ func streamToFile(ctx context.Context) {
 
 	manualStreamDownloadAndStreamFlush(body, file) // attempt to implement an efficient copy
 
-	elapsed := time.Since(now)
 	fmt.Println("Streaming duration " + elapsed.String())
 }
 
@@ -143,7 +142,7 @@ func manualStreamDownloadAndStreamFlush(body io.Reader, file *os.File) {
 	file.WriteString("]")
 }
 
-func fetchAlbums(ctx context.Context) (*http.Response, time.Time, error) {
+func fetchAlbums(ctx context.Context) (*http.Response, time.Duration, error) {
 	url := "https://jsonplaceholder.typicode.com/photos"
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
@@ -159,5 +158,5 @@ func fetchAlbums(ctx context.Context) (*http.Response, time.Time, error) {
 		fmt.Println("Error making request " + err.Error())
 		os.Exit(1)
 	}
-	return resp, now, err
+	return resp, time.Since(now), err
 }
